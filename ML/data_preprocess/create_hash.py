@@ -79,10 +79,10 @@ def is_number(s):
     return False
 
 if __name__ == '__main__':
-    
-    SLICEPATH = './data_source/'
-    HASHPATH = './data_source/hash_slices/'
+    parent_directory = os.path.dirname(os.getcwd())
+    SLICEPATH = os.path.join(parent_directory, 'dataset\\NVD')
+    HASHPATH = os.path.join(parent_directory, 'dataset\\hash')
 
     sentenceDict = get_hashs(SLICEPATH, HASHPATH)
-
+    print(sentenceDict)
     print('\nsuccess!')
