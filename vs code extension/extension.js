@@ -1,45 +1,35 @@
-const vscode = require("vscode")
-const axios = require("axios")
-const xmlParser = require("fast-xml-parser")
-const https = require("https")
+const vscode = require('vscode');
+const { spawn } = require('child_process');
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-async function activate(context) {
-  https.globalAgent.options.rejectUnauthorized = false
-  const res = await axios.get("https://blog.webdevsimplified.com/rss.xml")
-  const articles = xmlParser
-    .parse(res.data)
-    .rss.channel.item.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
-    .map(article => {
-      return {
-        label: article.title,
-        detail: article.description,
-        link: article.link,
-      }
-    })
+function activate(context) {
+  const disposable = vscode.commands.registerCommand('extension.scanForErrors', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      const filePath = editor.document.fileName;
 
-  let disposable = vscode.commands.registerCommand(
-    "wds-blog-search.searchWdsBlog",
-    async function () {
-      const article = await vscode.window.showQuickPick(articles, {
-        matchOnDetail: true,
-      })
+      const eslint = spawn('npx', ['eslint', '--fix', filePath]);
 
-      if (article == null) return
+      eslint.stdout.on('data', (data) => {
+        console.log(data.toString());
+      });
 
-      vscode.env.openExternal(article.link)
+      eslint.stderr.on('data', (data) => {
+        console.error(data.toString());
+      });
+
+      eslint.on('exit', (code) => {
+        if (code === 0) {
+          vscode.window.showInformationMessage('No errors found.');
+        } else {
+          vscode.window.showErrorMessage('Errors found. Check the output for details.');
+        }
+      });
     }
-  )
+  });
 
-  context.subscriptions.push(disposable)
+  context.subscriptions.push(disposable);
 }
-exports.activate = activate
-
-function deactivate() {}
 
 module.exports = {
   activate,
-  deactivate,
-}
+};
