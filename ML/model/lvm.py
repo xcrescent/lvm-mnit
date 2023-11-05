@@ -1,9 +1,3 @@
-## -*- coding: utf-8 -*-
-'''
-This python file is used to train four class focus data in blstm model
-
-'''
-
 import math
 import os
 import time
@@ -15,6 +9,7 @@ from keras.models import Sequential
 from preprocess_dl_Input_version5 import *
 
 RANDOMSEED = 2018  # for reproducibility
+
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
